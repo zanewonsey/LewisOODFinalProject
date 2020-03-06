@@ -1,13 +1,15 @@
 package me.wonsey.ood.tasks;
 
-import me.wonsey.ood.states.CompletedState;
-import me.wonsey.ood.states.EmptyState;
-import me.wonsey.ood.states.IState;
-import me.wonsey.ood.states.InProgressState;
-import me.wonsey.ood.states.WaitingState;
+import java.io.Serializable;
 
-public class Task implements ITask
+import me.wonsey.ood.states.*;
+
+public class Task implements ITask, Serializable
 {
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 4314049020921672306L;
    private String taskName;
    private String notes;
    
@@ -70,21 +72,7 @@ public class Task implements ITask
    @Override
    public void complete()
    {
-      // TODO this.status = new 
-   }
-
-   @Override
-   public void remove()
-   {
-      // TODO Auto-generated method stub
-      
-   }
-
-   @Override
-   public void edit()
-   {
-      // TODO Auto-generated method stub
-      
+      this.status = this.completed;
    }
 
    @Override

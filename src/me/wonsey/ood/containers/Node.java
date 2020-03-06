@@ -6,9 +6,14 @@ public class Node<T> implements INode<T>
    private INode<T> next;
    private T value;
    
+   private INode<T> nullNode;
+   
    public Node(T value)
    {
+      nullNode = new NullNode<T>();
       this.value = value;
+      this.next = nullNode;
+      this.previous = nullNode;
    }
 
    @Override

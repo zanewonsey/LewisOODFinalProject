@@ -1,8 +1,8 @@
 package me.wonsey.ood.containers;
 
-public interface Iterable
+public interface Iterable<T>
 {
    public boolean hasNext();
-   public Object next();
+   public T next();
    public void remove();
 }

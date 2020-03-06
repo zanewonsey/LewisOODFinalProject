@@ -16,7 +16,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.event.MenuKeyListener;
 
+import me.wonsey.ood.commands.BeginTaskCommand;
+import me.wonsey.ood.commands.CompleteTaskCommand;
 import me.wonsey.ood.containers.Node;
+import me.wonsey.ood.states.CompletedState;
+import me.wonsey.ood.states.InProgressState;
 import me.wonsey.ood.states.WaitingState;
 import me.wonsey.ood.tasks.ITask;
 import me.wonsey.ood.tasks.Task;
@@ -36,6 +40,10 @@ public class MainForm
 
    private JFrame frame;
    private final ButtonGroup buttonGroup = new ButtonGroup();
+   JRadioButton all_RadioButton;
+   JRadioButton waiting_RadioButton;
+   JRadioButton inprogress_RadioButton;
+   JRadioButton complete_RadioButton;
    private JTextField addNewTaskField;
    JTextArea textArea;
    JLabel task_name_label;
@@ -47,6 +55,11 @@ public class MainForm
    
    Manager task_manager;
    ITask selectedTask;
+   
+   private static final int ALL_TASKS        = 0;
+   private static final int WAITING_TASKS    = 1;
+   private static final int INPROGRESS_TASKS = 2;
+   private static final int COMPLETED_TASKS  = 3;
 
    /**
     * Launch the application.
@@ -61,7 +74,8 @@ public class MainForm
             {
                MainForm window = new MainForm();
                window.frame.setVisible(true);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                e.printStackTrace();
             }
@@ -71,12 +85,48 @@ public class MainForm
    
    void taskDetailFormUpdate()
    {
+      if (selectedTask == null)
+      {
+         selectedTask = new Task();
+      }
+      textArea.setText(((Task) selectedTask).getTaskNotes());
       task_name_label.setText(((Task) selectedTask).getTaskName());
       task_status_label.setText(((Task) selectedTask).getState().toString());
-      textArea.setText(((Task) selectedTask).getTaskNotes());
       
       boolean isWaiting = ((Task) selectedTask).getState() instanceof WaitingState;
       moveToInProgressButton.setEnabled(isWaiting);
+   }
+   
+   void populateTaskList()
+   {
+      me.wonsey.ood.containers.Iterable<Task> ll_iter = task_manager.getList().createIterator(); //list.createIterator();
+      listModel1.clear();
+      Task task = null;
+      while (ll_iter.hasNext())
+      {
+         if (all_RadioButton.isSelected())
+         {
+            listModel1.addElement(ll_iter.next());
+         }
+         else
+         {
+            task = ll_iter.next();
+            if (waiting_RadioButton.isSelected() && (task.getState() instanceof WaitingState))
+               listModel1.addElement(task);
+            if (inprogress_RadioButton.isSelected() && (task.getState() instanceof InProgressState))
+               listModel1.addElement(task);
+            if (complete_RadioButton.isSelected() && (task.getState() instanceof CompletedState))
+               listModel1.addElement(task);
+            
+         }
+      }
+      
+      if (listModel1.getSize() > 0)
+         selectedTask = listModel1.firstElement();
+      else
+         selectedTask = new Task();
+      
+      taskDetailFormUpdate();
    }
 
    /**
@@ -84,13 +134,13 @@ public class MainForm
     */
    public MainForm()
    {
-      
       task_manager = new Manager();
       selectedTask = new Task();
-      //task_manager.addNewTask("fuck");
-
-      //listModel1.addElement(new Task("jjjjjjjjjjjjj"));
+      
+      task_manager.openFile();
+      
       initialize();
+      populateTaskList();
       taskDetailFormUpdate();
    }
 
@@ -105,52 +155,66 @@ public class MainForm
       frame.getContentPane().setLayout(null);
       frame.setTitle("Task Tracker (Zane Wonsey)");
       
-      JRadioButton rdbtnNewRadioButton = new JRadioButton("All");
-      rdbtnNewRadioButton.addMouseListener(new MouseAdapter()
+      all_RadioButton = new JRadioButton("All");
+      all_RadioButton.setFont(new Font("Tahoma", Font.PLAIN, 11));
+      all_RadioButton.addMouseListener(new MouseAdapter()
       {
          @Override
          public void mouseClicked(MouseEvent e)
          {
             System.out.println("All radio");
+            populateTaskList();
          }
       });
-      rdbtnNewRadioButton.setSelected(true);
-      buttonGroup.add(rdbtnNewRadioButton);
-      rdbtnNewRadioButton.setBounds(6, 7, 42, 23);
-      frame.getContentPane().add(rdbtnNewRadioButton);
+      all_RadioButton.setSelected(true);
+      buttonGroup.add(all_RadioButton);
+      all_RadioButton.setBounds(6, 7, 42, 23);
+      frame.getContentPane().add(all_RadioButton);
       
-      JRadioButton rdbtnNewRadioButton_1 = new JRadioButton("Waiting");
-      rdbtnNewRadioButton_1.addMouseListener(new MouseAdapter() {
+      waiting_RadioButton = new JRadioButton("Waiting");
+      waiting_RadioButton.setFont(new Font("Tahoma", Font.PLAIN, 11));
+      waiting_RadioButton.addMouseListener(new MouseAdapter()
+      {
          @Override
-         public void mouseClicked(MouseEvent e) {
+         public void mouseClicked(MouseEvent e)
+         {
             System.out.println("waiting radio");
+            populateTaskList();
          }
       });
-      buttonGroup.add(rdbtnNewRadioButton_1);
-      rdbtnNewRadioButton_1.setBounds(50, 7, 61, 23);
-      frame.getContentPane().add(rdbtnNewRadioButton_1);
+      buttonGroup.add(waiting_RadioButton);
+      waiting_RadioButton.setBounds(50, 7, 61, 23);
+      frame.getContentPane().add(waiting_RadioButton);
       
-      JRadioButton rdbtnNewRadioButton_2 = new JRadioButton("In Progress");
-      rdbtnNewRadioButton_2.addMouseListener(new MouseAdapter() {
+      inprogress_RadioButton = new JRadioButton("In Progress");
+      inprogress_RadioButton.setFont(new Font("Tahoma", Font.PLAIN, 11));
+      inprogress_RadioButton.addMouseListener(new MouseAdapter()
+      {
          @Override
-         public void mouseClicked(MouseEvent e) {
+         public void mouseClicked(MouseEvent e)
+         {
             System.out.println("in progress radio");
+            populateTaskList();
          }
       });
-      buttonGroup.add(rdbtnNewRadioButton_2);
-      rdbtnNewRadioButton_2.setBounds(113, 7, 81, 23);
-      frame.getContentPane().add(rdbtnNewRadioButton_2);
+      buttonGroup.add(inprogress_RadioButton);
+      inprogress_RadioButton.setBounds(113, 7, 81, 23);
+      frame.getContentPane().add(inprogress_RadioButton);
       
-      JRadioButton rdbtnNewRadioButton_3 = new JRadioButton("Completed");
-      rdbtnNewRadioButton_3.addMouseListener(new MouseAdapter() {
+      complete_RadioButton = new JRadioButton("Completed");
+      complete_RadioButton.setFont(new Font("Tahoma", Font.PLAIN, 11));
+      complete_RadioButton.addMouseListener(new MouseAdapter()
+      {
          @Override
-         public void mouseClicked(MouseEvent e) {
+         public void mouseClicked(MouseEvent e)
+         {
             System.out.println("Completed radio");
+            populateTaskList();
          }
       });
-      buttonGroup.add(rdbtnNewRadioButton_3);
-      rdbtnNewRadioButton_3.setBounds(196, 7, 81, 23);
-      frame.getContentPane().add(rdbtnNewRadioButton_3);
+      buttonGroup.add(complete_RadioButton);
+      complete_RadioButton.setBounds(196, 7, 97, 23);
+      frame.getContentPane().add(complete_RadioButton);
       
       JScrollPane scrollPane = new JScrollPane();
       scrollPane.setBounds(16, 37, 265, 369);
@@ -192,6 +256,9 @@ public class MainForm
          public void mouseClicked(MouseEvent e)
          {
             System.out.println("Complete Task");
+            CompleteTaskCommand ctc = new CompleteTaskCommand((Task) selectedTask);
+            ctc.Execute();
+            populateTaskList();
          }
       });
       completeTaskButton.setFont(new Font("Tahoma", Font.PLAIN, 22));
@@ -214,6 +281,7 @@ public class MainForm
          {
             System.out.println("Update task notes");
             ((Task) selectedTask).setTaskNotes(textArea.getText());
+            populateTaskList();
          }
       });
       updateNotesButton.setBounds(344, 93, 389, 23);
@@ -225,8 +293,9 @@ public class MainForm
          @Override
          public void mouseReleased(MouseEvent arg0)
          {
-            selectedTask.beginWork();
-            taskDetailFormUpdate();
+            BeginTaskCommand btc = new BeginTaskCommand((Task) selectedTask);
+            btc.Execute();
+            populateTaskList();
             System.out.println("Move to in progress");
          }
       });
@@ -241,7 +310,7 @@ public class MainForm
          public void mouseClicked(MouseEvent e)
          {
             task_manager.addNewTask(addNewTaskField.getText());
-            listModel1.addElement(new Task(addNewTaskField.getText()));
+            populateTaskList();
             addNewTaskField.setText("");
             System.out.println("+ Add New");
          }
@@ -255,9 +324,9 @@ public class MainForm
          @Override
          public void mouseClicked(MouseEvent e)
          {
-            task_manager.removeTask(selectedTask);
-            
             System.out.println("Remove Task");
+            task_manager.removeTask(selectedTask);
+            populateTaskList();
          }
       });
       removeTaskButton.setFont(new Font("Tahoma", Font.PLAIN, 22));
@@ -274,19 +343,6 @@ public class MainForm
       
       JMenu mnNewMenu = new JMenu("File");
       menuBar.add(mnNewMenu);
-      
-      JMenuItem mntmNewMenuItem_2 = new JMenuItem("Open");
-      mntmNewMenuItem_2.addMouseListener(new MouseAdapter()
-      {
-         @Override
-         public void mouseReleased(MouseEvent e)
-         {
-            task_manager.openFile();
-            System.out.println("Open");
-         }
-         
-      });
-      mnNewMenu.add(mntmNewMenuItem_2);
       
       JMenuItem mntmNewMenuItem_3 = new JMenuItem("Save");
       mntmNewMenuItem_3.addMouseListener(new MouseAdapter()
@@ -309,6 +365,7 @@ public class MainForm
          public void mouseReleased(MouseEvent arg0)
          {
             System.out.println("Exit (Save)");
+            task_manager.saveFile();
             System.exit(0);
          }
       });
@@ -324,14 +381,5 @@ public class MainForm
          }
       });
       mnNewMenu_1.add(mntmNewMenuItem_1);
-      
-      JMenu mnNewMenu_2 = new JMenu("Help");
-      menuBar.add(mnNewMenu_2);
-      
-      JMenuItem mntmNewMenuItem_4 = new JMenuItem("Help");
-      mnNewMenu_2.add(mntmNewMenuItem_4);
-      
-      JMenuItem mntmNewMenuItem_5 = new JMenuItem("About");
-      mnNewMenu_2.add(mntmNewMenuItem_5);
    }
 }

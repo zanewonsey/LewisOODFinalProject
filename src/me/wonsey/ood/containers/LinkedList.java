@@ -6,10 +6,13 @@ public class LinkedList<T> implements ILinkedList<T>
    private INode<T> head;
    private INode<T> tail;
    
+   private INode<T> nullNode;
+   
    public LinkedList()
    {
-      this.head = null;
-      this.tail = null;
+      nullNode = new NullNode<T>();
+      this.head = nullNode;
+      this.tail = nullNode;
    }
    
    @Override
@@ -25,124 +28,75 @@ public class LinkedList<T> implements ILinkedList<T>
    }
 
    @Override
-   public boolean append(INode<T> node)
+   public boolean append(T item)
    {
       boolean retVal = false;
+      INode<T> newNode = new Node<T>(item);
       
-      if (this.head == null)
+      if (this.head == nullNode)
       {
-         this.head = node;
+         this.head = newNode;
          this.tail = this.head;
       }
       else if (this.head == this.tail)
       {
-         this.tail = node;
+         this.tail = newNode;
+         this.tail.setPrevious(head);
          this.head.setNext(tail);
       }
       else
       {
-         this.tail.setNext(node);
+         this.tail.setNext(newNode);
+         this.tail.getNext().setPrevious(tail);
          this.tail = this.tail.getNext();
       }
       
       return retVal;
    }
-
-   @Override
-   public boolean add(INode<T> node)
-   {
-      boolean retVal = false;
-      if (this.head == null)
-      {
-         this.head = node;
-         this.tail = this.head;
-      }
-      else if (this.head == this.tail)
-      {
-         this.head = node;
-         this.head.setNext(this.tail);
-      }
-      else
-      {
-         node.setNext(this.head);
-         this.head.setPrevious(node);
-         this.head = node;
-      }
-      return retVal;
-   }
    
    @Override
-   public boolean remove(T task)
+   public boolean remove(T item)
    {
-      // TODO finish this
-      INode<T> current = this.head;
-      boolean notFound = true;
-      do
+      boolean isFound = false;
+      INode<T> node = this.getHead();
+      
+      while (!isFound)
       {
-         if (current.getValue() == task)
+         if (node == nullNode)
          {
-            // Ok so we found a match. Check the parent and child nodes
-            // to know how to remove it.
-            if (current == head)
-            {
-               head = head.getNext();
-            }
-            else if (current == tail)
-            {
-               tail = tail.getPrevious();
-            }
-            else
-            {
-               INode<T> parent = current.getPrevious();
-               INode<T> child = current.getNext();
-               parent.setNext(child);
-               child.setPrevious(parent);
-            }
-            notFound = false;
+            break;
          }
-      } while (notFound);
-      return !notFound;
-   }
-
-   @Override
-   public boolean remove(INode<T> node)
-   {
-      // TODO finish this
-      INode<T> current = this.head;
-      boolean notFound = true;
-      do
-      {
-         if (current == node)
+         else if (node.getValue() == item)
          {
+            INode<T> prev = node.getPrevious();
+            INode<T> next = node.getNext();
             
-            notFound = false;
+            if (prev != nullNode)
+            {
+               prev.setNext(next);
+            }
+            
+            if (next != nullNode)
+            {
+               next.setPrevious(prev);
+            }
+            
+            isFound = true;
          }
-      } while (notFound);
-      return !notFound;
+         else
+         {
+            node = node.getNext();
+         }
+      }
+      
+      return isFound;
    }
+   
 
    @Override
-   public boolean remove(int index)
+   public Iterable<T> createIterator()
    {
-      // TODO Auto-generated method stub
-      boolean retVal = false;
-      return retVal;
+      return new LinkedListIterator<T>(this);
    }
-
-   @Override
-   public boolean removeFirst()
-   {
-      // TODO Auto-generated method stub
-      boolean retVal = false;
-      return retVal;
-   }
-
-   @Override
-   public boolean removeLast()
-   {
-      // TODO Auto-generated method stub
-      boolean retVal = false;
-      return retVal;
-   }
-
+   
 }

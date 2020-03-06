@@ -4,6 +4,6 @@ public interface ITask
 {
    public void beginWork();
    public void complete();
-   public void remove();
-   public void edit();
+   //public void remove();
+   //public void edit();
 }

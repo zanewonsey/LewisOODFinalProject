@@ -6,11 +6,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.wonsey.ood.commands.BeginTaskCommand;
+import me.wonsey.ood.commands.CompleteTaskCommand;
+import me.wonsey.ood.containers.Iterable;
 import me.wonsey.ood.containers.LinkedList;
-import me.wonsey.ood.containers.Node;
+import me.wonsey.ood.states.CompletedState;
+import me.wonsey.ood.states.EmptyState;
+import me.wonsey.ood.states.InProgressState;
+import me.wonsey.ood.states.WaitingState;
+import me.wonsey.ood.tasks.Task;
 
 public class Tests
 {
@@ -48,15 +56,106 @@ public class Tests
       return retval;
    }
    
+   // ##########################################################
+   // Command Pattern Tests
    @Test
-   public void testLinkedListAdd()
+   public void testCommands()
+   {
+      Task task = new Task("test");
+      BeginTaskCommand btc = new BeginTaskCommand(task);
+      CompleteTaskCommand ctc = new CompleteTaskCommand(task);
+      
+      if (!(task.getState() instanceof WaitingState))
+         Assert.fail();
+      
+      btc.Execute();
+      if (!(task.getState() instanceof InProgressState))
+         Assert.fail();
+      
+      ctc.Execute();
+      if (!(task.getState() instanceof CompletedState))
+         Assert.fail();
+   }
+   
+   // ##########################################################
+   // State Pattern Tests
+   @Test
+   public void testStateChange()
+   {
+      Task task = new Task();
+      if (!(task.getState() instanceof EmptyState))
+         Assert.fail();
+      
+      task = new Task("test");
+      if (!(task.getState() instanceof WaitingState))
+         Assert.fail();
+      
+      task.beginWork();
+      if (!(task.getState() instanceof InProgressState))
+         Assert.fail();
+      
+      task.complete();
+      if (!(task.getState() instanceof CompletedState))
+         Assert.fail();
+
+   }
+   
+   // ##########################################################
+   // Iterator Pattern Tests
+   @Test
+   public void testLinkedListAppend()
    {
       LinkedList<String> ll = new LinkedList<String>();
-      ll.add(new Node<String>("ree1"));
-      ll.add(new Node<String>("ree2"));
-      ll.add(new Node<String>("ree3"));
+      ll.append("ree1");
+      ll.append("ree2");
+      ll.append("ree3");
       
-      fail("Not yet implemented");
+      Iterable<String> ll_iter = ll.createIterator();
+      
+      while (ll_iter.hasNext()) System.out.println(ll_iter.next());
+      
+      Assert.assertEquals("ree1\r\nree2\r\nree3\r\n", getSyso());
+   }
+   
+   @Test
+   public void testLinkedListRemove()
+   {
+      LinkedList<String> ll = new LinkedList<String>();
+      ll.append("ree1");
+      ll.append("ree2");
+      ll.append("ree3");
+      
+      Iterable<String> ll_iter = ll.createIterator();
+      while (ll_iter.hasNext()) System.out.println(ll_iter.next());
+      
+      Assert.assertEquals("ree1\r\nree2\r\nree3\r\n", getSyso());
+      
+      ll.remove("ree2");
+      
+      ll_iter = ll.createIterator();
+      while (ll_iter.hasNext()) System.out.println(ll_iter.next());
+      
+      Assert.assertEquals("ree1\r\nree3\r\n", getSyso());
+      
+      ll.append("hmmm");
+      
+      ll_iter = ll.createIterator();
+      
+      
+      while (ll_iter.hasNext())
+      {
+         System.out.println(ll_iter.next());
+      }
+      
+      Assert.assertEquals("ree1\r\nree3\r\nhmmm\r\n", getSyso());
+
+   }
+   
+   @Test
+   public void runningDirTest()
+   {
+      String dir = System.getProperty("user.dir");
+      System.out.println(dir);
    }
 
 }

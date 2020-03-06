@@ -1,7 +1,9 @@
 package me.wonsey.ood.gui;
 
+import java.io.IOException;
+
 import me.wonsey.ood.containers.LinkedList;
-import me.wonsey.ood.containers.Node;
+import me.wonsey.ood.fileoperation.FileOperator;
 import me.wonsey.ood.tasks.ITask;
 import me.wonsey.ood.tasks.Task;
 
@@ -16,8 +18,7 @@ public class Manager
    
    public void addNewTask(String taskName)
    {
-      System.out.println("sdfgsdgsdfgsdfg");
-      task_list.add(new Node<Task>(new Task(taskName)));
+      task_list.append(new Task(taskName));
    }
    
    public void removeTask(ITask task)
@@ -25,30 +26,38 @@ public class Manager
       task_list.remove((Task) task);
    }
    
-   public void getAllList()
+   public LinkedList<Task> getList()
    {
-      
-   }
-   
-   public void getInList()
-   {
-      
-   }
-   
-   public void getAldxfghlList()
-   {
-      
+      return this.task_list;
    }
    
    public boolean openFile()
    {
       System.out.println("openFile");
+      FileOperator file_operator = FileOperator.getOperator();
+      try
+      {
+         task_list = file_operator.readList();
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
       return false;
    }
    
    public boolean saveFile()
    {
       System.out.println("saveFile");
+      FileOperator file_operator = FileOperator.getOperator();
+      try
+      {
+         file_operator.writeList(task_list);
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
       return false;
    }
 }

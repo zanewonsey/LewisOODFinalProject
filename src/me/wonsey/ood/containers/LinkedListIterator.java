@@ -1,20 +1,29 @@
 package me.wonsey.ood.containers;
 
-public class LinkedListIterator implements Iterable
+public class LinkedListIterator<T> implements Iterable<T>
 {
+   private INode<T> currentNode;
+   
+   public LinkedListIterator(LinkedList<T> list)
+   {
+      currentNode = list.getHead();
+   }
 
    @Override
    public boolean hasNext()
    {
-      // TODO Auto-generated method stub
-      return false;
+      // If we reach the end of the list currentNode will
+      // be a 'NullNode', getNext() will only be null in
+      // the case that we hit a 'NullNode'
+      return currentNode.getNext() != null;
    }
 
    @Override
-   public Object next()
+   public T next()
    {
-      // TODO Auto-generated method stub
-      return null;
+      T retVal = currentNode.getValue();
+      currentNode = currentNode.getNext();
+      return retVal;
    }
 
    @Override
