@@ -33,7 +33,7 @@ public class LinkedList<T> implements ILinkedList<T>
       boolean retVal = false;
       INode<T> newNode = new Node<T>(item);
       
-      if (this.head == nullNode)
+      if (this.head instanceof NullNode) // if (this.head == nullNode)
       {
          this.head = newNode;
          this.tail = this.head;
@@ -62,7 +62,7 @@ public class LinkedList<T> implements ILinkedList<T>
       
       while (!isFound)
       {
-         if (node == nullNode)
+         if (node instanceof NullNode)
          {
             break;
          }
@@ -71,12 +71,22 @@ public class LinkedList<T> implements ILinkedList<T>
             INode<T> prev = node.getPrevious();
             INode<T> next = node.getNext();
             
-            if (prev != nullNode)
+            if (item == this.head.getValue())
+            {
+            	this.head = next;
+            }
+            
+            if (item == this.tail.getValue())
+            {
+            	this.tail = prev;
+            }
+            
+            if (!(prev instanceof NullNode)) // if (prev != nullNode)
             {
                prev.setNext(next);
             }
             
-            if (next != nullNode)
+            if (!(next instanceof NullNode)) // if (next != nullNode)
             {
                next.setPrevious(prev);
             }

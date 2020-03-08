@@ -324,7 +324,7 @@ public class MainForm
          @Override
          public void mouseClicked(MouseEvent e)
          {
-            System.out.println("Remove Task");
+            System.out.println("Remove Task: "+((Task) selectedTask).getTaskName());
             task_manager.removeTask(selectedTask);
             populateTaskList();
          }
